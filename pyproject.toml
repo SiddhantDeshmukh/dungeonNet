@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[project]
+name = "dungeon_net"
+version = "0.0.1"
+authors = [
+  { name="Siddhant A. Deshmukh", email="siddhant593@gmail.com" },
+]
+description = "Organic dungeon generator using graph theory"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+  "matplotlib",
+  "numpy",
+  "networkx"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/SiddhantDeshmukh/dungeonNet"
