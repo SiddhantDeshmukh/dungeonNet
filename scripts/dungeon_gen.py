@@ -40,6 +40,8 @@ from dungeon_net.viz.pgv_nx import visualize_dungeon
 
 
 def main():
+    SEED = 420
+    np.random.seed(SEED)
     entrance = Room(2)  # min of 2
     entrance.name = "Entrance"
     node_types = [Room, Corridor, Junction]
@@ -69,48 +71,19 @@ def main():
     # join_prob_matrix[2, 0] = 0.0  # junction -> room
     join_prob_matrix[2, 1] = 1.0  # junction -> corridor
     chain_lengths = {
-        0: (7, 4),
-        1: (6, 3),
-        2: (6, 3),
+        0: (4, 2),
+        1: (3, 2),
+        2: (3, 2),
     }
-    dungeon, chain_dict = generate_chain_dungeon(3, chain_lengths,
+    num_iter = 3
+    dungeon, chain_dict = generate_chain_dungeon(num_iter, chain_lengths,
                                                  node_types, node_types,
                                                  chain_prob_matrix,
                                                  join_prob_matrix,
+                                                 max_fill_chain_length=2,
                                                  debug=True)
     print(f"\nDungeon: {dungeon}")
-    visualize_dungeon(dungeon, "../out/dungeon.png")
-    # join_prob_matrix[2, 2] = 0.0  # junction -> junction
-    # # 1. chain 1
-    # chain_length = 7
-    # print(f"Chain 1 ({chain_length} nodes)")
-    # chain_1, previous_nodes = generate_node_chain(chain_length, node_types,
-    #                                               chain_prob_matrix, entrance,
-    #                                               previous_nodes,
-    #                                               0,
-    #                                               debug=True)
-    # # 2. chain 2
-    # chain_length = 7
-    # print(f"\nChain 2 ({chain_length} nodes)")
-    # chain_2, previous_nodes = generate_node_chain(chain_length, node_types,
-    #                                               chain_prob_matrix, entrance,
-    #                                               previous_nodes,
-    #                                               1,
-    #                                               debug=True)
-
-    # # 2.5: Join chains 1 and 2
-    # joining_chain_1, previous_nodes = generate_chain_join(chain_1, chain_2,
-    #                                                       4, node_types,
-    #                                                       join_prob_matrix,
-    #                                                       previous_nodes,
-    #                                                       2,
-    #                                                       start_node=None,
-    #                                                       end_node=None,
-    #                                                       debug=True)
-    # # Join the entire graph
-    # chains = nx.compose(chain_1, chain_2)
-    # dungeon = nx.compose(chains, joining_chain_1)
-    # visualize_dungeon(chains, "../out/chains.png")
+    visualize_dungeon(dungeon, f"../out/dungeon_{SEED}_{num_iter}.png")
 
 
 if __name__ == "__main__":
@@ -121,16 +94,26 @@ if __name__ == "__main__":
 TODO:
   - visualize_dungeon() function that styles the graph and writes out a png
     - extension: interactive plot instead
-  - fill_chain() function that fills in all empty edges with a 'complexity'
-    parameter that controls how long each subchain should be
-    - allow for generating small loops
-  - Add chance for loops in a chain (basically do a chain_join from one node
-    to another in the same chain), can do this with fill_chain
+  - Add chance for loops in a chain (two corridors with the same start and
+    end)
   - room templates for each, random choice can then pick one of those
   - Do step 3 properly with a "Goal" node
-  - generating "num_edges" should be weighted
+    - Generally place this about 85% of the way through the dungeon, and
+      then generate one-way paths back from the Goal to a random node in
+      chains 1 & 2 and (guaranteed to connect back to entrance)
   - Add "data" to each node describing when it was generated, what it
     contains and anything else that may be useful
-  - could make chain_num a float so that e.g. join between chain 1 and 2 is
-    1.5
+  - Recursively adding nodes was getting difficult, lots of spaghetti with
+    keeping track of "previous_nodes", definitely need to add more helper
+    functions and maybe store dungeon data in a struct
+  - Write a description function for the dungeon / chain_dict that says
+    how many of each kind of Node there are (how many Rooms, Junctions, etc)
+NOTE:
+  - Running 3 iterations to get 59 nodes and 122 edges is still super fast,
+    it will be slower in Godot when we have meshes and creatures, but maybe
+    there can be some clever rendering going on there too
+  - For "tower defense" missions, the Goal node is just at the entrance
+  - one-way paths need to allow the player to "fail forwards", i.e. they
+    need to still be able to reach the Goal, and then there needs to be a
+    loop back to the start
 """
