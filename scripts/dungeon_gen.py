@@ -93,8 +93,10 @@ def main():
         0: (4, 2),
         1: (3, 2),
         2: (3, 2),
+        3: (3, 2),
+        4: (3, 2),
     }
-    num_iter = 2
+    num_iter = 5
     dungeon, chain_dict = generate_chain_dungeon(num_iter, chain_lengths,
                                                  node_types, node_types,
                                                  chain_prob_matrix,
