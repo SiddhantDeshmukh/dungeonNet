@@ -60,7 +60,7 @@ def count_node_types(chain_dict: Dict[str, nx.MultiDiGraph]) -> Dict[Node, int]:
 
 
 def main():
-    SEED = 420
+    SEED = 69
     np.random.seed(SEED)
     entrance = Room(2)  # min of 2
     entrance.name = "Entrance"
@@ -95,7 +95,7 @@ def main():
         1: (3, 2),
         2: (3, 2),
     }
-    num_iter = 1
+    num_iter = 3
     dungeon, chain_dict = generate_chain_dungeon(num_iter, chain_lengths,
                                                  node_types, node_types,
                                                  chain_prob_matrix,
