@@ -41,10 +41,37 @@ def generate_node(node_types: List[Node], prev_node: Node,
     return node
 
 
+def link_rooms(chain: nx.MultiDiGraph, room1: Room, room2: Room,
+               previous_nodes: List[Node], chain_num: int) -> Tuple[nx.MultiDiGraph, List[Node]]:
+    # Link two rooms with a new corridor; generally used after generation
+    # for creating loops or reaching out to inaccessible Rooms
+    corridor = Corridor()
+    corridor.name = new_node_name(corridor, previous_nodes)
+    chain.add_node(corridor, chain_num=chain_num)
+    # Room1 <-> Corridor
+    chain.add_edge(room1, corridor)
+    chain.add_edge(corridor, room1)
+    # Corridor <-> Room2
+    chain.add_edge(corridor, room2)
+    chain.add_edge(room2, corridor)
+
+    previous_nodes.append(corridor)
+
+    corridor.filled_edges += 2
+
+    room1.num_edges += 1
+    room1.filled_edges += 1
+
+    room2.num_edges += 1
+    room2.filled_edges += 1
+
+    return chain, previous_nodes
+
+
 def generate_node_chain(chain_length: int, node_types: List[Node],
                         prob_matrix: np.ndarray, start_node: Node,
                         previous_nodes: List[Node], chain_num: int,
-                        debug=False) -> Tuple[nx.MultiDiGraph, List]:
+                        debug=False, loop_probs=np.array([0.75, 0.15, 0.1])) -> Tuple[nx.MultiDiGraph, List]:
     # "chain_length" is how many nodes _not_ including Corridor nodes
     # "node_types" is a list of node types to consider and is the ordering
     # of the "prob_matrix"
@@ -82,6 +109,24 @@ def generate_node_chain(chain_length: int, node_types: List[Node],
 
         prev_node = node
         previous_nodes.append(prev_node)
+
+    # Add interesting self-loops (RoomX -> RoomY * N)
+    # Because this is a linear chain, we can just grab all the "Rooms"
+    rooms = [n for n in G.nodes if isinstance(n, Room)]
+    if debug:
+        print([r.name for r in rooms])
+    for i, room in enumerate(rooms):
+        if i == len(rooms) - 1:
+            break
+        next_room = rooms[i+1]
+        # Randomly generate how many extra paths there should be
+        num_extra_paths = np.random.choice([0, 1, 2], p=loop_probs)
+        for i in range(num_extra_paths):
+            if debug:
+                print(
+                    f"Adding extra path {i+1}/{num_extra_paths} between {room.name} and {next_room}")
+            G, previous_nodes = link_rooms(G, room, next_room, previous_nodes,
+                                           chain_num)
 
     return G, previous_nodes
 
@@ -121,8 +166,6 @@ def generate_chain_join(chain_1: nx.MultiDiGraph,
     if not end_node.has_free_edges():
         end_node.num_edges += 1
 
-    if debug:
-        print(f"\nJoining Chain ({chain_length} nodes)")
     # Generate a chain with the desired probability matrix starting on
     # start_node
     G, previous_nodes = generate_node_chain(chain_length, node_types,

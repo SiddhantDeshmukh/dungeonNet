@@ -57,7 +57,11 @@ def generate_chain_dungeon(num_iter: int, chain_lengths: Union[Tuple, Dict],
             start_node = np.random.choice(potential_start_nodes)
             if start_node.num_edges - start_node.filled_edges < 2:
                 start_node.num_edges += 2
+        if debug:
+            print(f"\nIter {i+1}/{num_iter}: Starting from {start_node}")
         # 1.: Chain 1 from start_node
+        if debug:
+            print(f"\nIter {i+1}/{num_iter}: Chain 1")
         chain_1, previous_nodes = generate_node_chain(chain_length,
                                                       chain_node_types,
                                                       chain_prob_matrix,
@@ -65,10 +69,11 @@ def generate_chain_dungeon(num_iter: int, chain_lengths: Union[Tuple, Dict],
                                                       previous_nodes,
                                                       chain_num,
                                                       debug=debug)
-        # dungeon = chain_1
         chain_num += 1
         chain_dict[f"{i}_C"] = chain_1
         # 2.: Chain 2 from start_node
+        if debug:
+            print(f"\nIter {i+1}/{num_iter}: Chain 2")
         chain_2, previous_nodes = generate_node_chain(chain_length,
                                                       chain_node_types,
                                                       chain_prob_matrix,
@@ -79,6 +84,8 @@ def generate_chain_dungeon(num_iter: int, chain_lengths: Union[Tuple, Dict],
         chain_num += 1
         chain_dict[f"{i}_C2"] = chain_2
         # 3.: Join chains 1 & 2 (randomly picks start and end points)
+        if debug:
+            print(f"\nIter {i+1}/{num_iter}: Joining Chain")
         joining_chain, previous_nodes = generate_chain_join(chain_1, chain_2,
                                                             join_length,
                                                             join_node_types,
@@ -170,11 +177,6 @@ def fill_dungeon(dungeon: nx.MultiDiGraph,
                     add_edge_to_chain(dungeon, node, new_node, chain_num)
                 previous_nodes.append(new_node)
                 continue
-            # if np.random.random() < fill_self_loop_prob:
-            # TODO: Figure out how to do this organically, maybe I just have to
-            # do it in "generate_node_chain"
-            #     chain, previous_nodes = generate_chain_join()
-            # else:
             chain_length = int(np.random.randint(1,
                                                  max_chain_length + 1) * fill_complexity)
             if chain_length < 1:

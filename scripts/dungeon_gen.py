@@ -60,12 +60,11 @@ def count_node_types(chain_dict: Dict[str, nx.MultiDiGraph]) -> Dict[Node, int]:
 
 
 def main():
-    SEED = 69
+    SEED = 420
     np.random.seed(SEED)
     entrance = Room(2)  # min of 2
     entrance.name = "Entrance"
     node_types = [Room, Corridor, Junction]
-    previous_nodes = [entrance]
     # set up the probability matrix for generation
     chain_prob_matrix = np.zeros((len(node_types), len(node_types)))
     # All values should be proportionate, here they are just straight up
@@ -95,7 +94,7 @@ def main():
         1: (3, 2),
         2: (3, 2),
     }
-    num_iter = 3
+    num_iter = 2
     dungeon, chain_dict = generate_chain_dungeon(num_iter, chain_lengths,
                                                  node_types, node_types,
                                                  chain_prob_matrix,
