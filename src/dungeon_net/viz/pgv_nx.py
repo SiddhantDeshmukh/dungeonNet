@@ -14,7 +14,8 @@ def visualize_dungeon(dungeon: nx.MultiDiGraph,
     attrs = {n: {
         "color": tabcmapper(i, cmap=cmap, mod=cmap_mod),
         "shape": choose_node_shape(n),
-        "style": choose_node_style(n)
+        "style": choose_node_style(n),
+        "fontcolor": "#800000" if n.name in ["Entrance", "Goal"] else ""
     }
         for n, i in dungeon.nodes(data="chain_num")}
     nx.set_node_attributes(dungeon, attrs)

@@ -32,11 +32,31 @@
 #       inaccessible, just move them around
 import networkx as nx
 import numpy as np
+from typing import Dict
 
-from dungeon_net.generation.node import Room, Corridor, Junction
+from dungeon_net.generation.node import Room, Corridor, Junction, Node
 from dungeon_net.numerics.array_utils import normalize_matrix
 from dungeon_net.generation.dungeon import generate_chain_dungeon
 from dungeon_net.viz.pgv_nx import visualize_dungeon
+
+
+def count_node_types(chain_dict: Dict[str, nx.MultiDiGraph]) -> Dict[Node, int]:
+    # Describe the different kinds of chains
+    node_count = {"type": {}, "base": {}}
+    for k, chain in chain_dict.items():
+        for node in chain.nodes:
+            node_type = type(node)
+            if node_type in node_count["type"]:
+                node_count["type"][node_type] += 1
+            else:
+                node_count["type"][node_type] = 1
+            node_base_name = node.base_name
+            if node_base_name in node_count["base"]:
+                node_count["base"][node_base_name] += 1
+            else:
+                node_count["base"][node_base_name] = 1
+
+    return node_count
 
 
 def main():
@@ -75,7 +95,7 @@ def main():
         1: (3, 2),
         2: (3, 2),
     }
-    num_iter = 3
+    num_iter = 1
     dungeon, chain_dict = generate_chain_dungeon(num_iter, chain_lengths,
                                                  node_types, node_types,
                                                  chain_prob_matrix,
@@ -84,6 +104,8 @@ def main():
                                                  debug=True)
     print(f"\nDungeon: {dungeon}")
     visualize_dungeon(dungeon, f"../out/dungeon_{SEED}_{num_iter}.png")
+    node_type_count = count_node_types(chain_dict)
+    print(node_type_count)
 
 
 if __name__ == "__main__":

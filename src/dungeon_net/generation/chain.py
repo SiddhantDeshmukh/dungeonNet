@@ -72,13 +72,6 @@ def generate_node_chain(chain_length: int, node_types: List[Node],
             node.num_edges = 2
         # Add nodes with 'chain_num' data
         add_edge_to_chain(G, prev_node, node, chain_num)
-        # G.add_node(node, chain_num=chain_num)
-        # # for now, consider bidirectional movement across all nodes with
-        # # uniform weights
-        # G.add_edge(prev_node, node)
-        # G.add_edge(node, prev_node)
-        # prev_node.filled_edges += 1
-        # node.filled_edges += 1
         if debug:
             print(
                 f"Iter {current_chain_length} / {chain_length}: Connected new ({node}) to previous ({prev_node})")

@@ -30,10 +30,10 @@ def generate_chain_dungeon(num_iter: int, chain_lengths: Union[Tuple, Dict],
     # For finer control in generating dungeons, use the other generating
     # functions directly
     entrance = Room(2)
+    entrance.base_name = "Entrance"
     entrance.name = "Entrance"
     previous_nodes = [entrance]
     chain_num = 1
-    join_num = 1
     # Storage for generated dungeon
     dungeon = nx.MultiDiGraph()  # the full graph
     chain_dict = {}  # all the individual chains
@@ -110,6 +110,24 @@ def generate_chain_dungeon(num_iter: int, chain_lengths: Union[Tuple, Dict],
                                                            fill_self_loop_prob=fill_self_loop_prob,
                                                            debug=debug)
         chain_num += 1
+
+    # Add a goal node towards the end of the dungeon (penultimate chain)
+    goal_start_node = list(chain_dict[f"{num_iter-1}_C2"].nodes)[-1]
+    goal_start_node.num_edges += 1
+    if debug:
+        print(f"Adding goal to {goal_start_node.name}")
+    goal_chain, previous_nodes = generate_node_chain(2, chain_node_types,
+                                                     chain_prob_matrix,
+                                                     goal_start_node,
+                                                     previous_nodes,
+                                                     chain_num, debug=debug)
+    chain_num += 1
+
+    goal_node = list(goal_chain.nodes)[-1]
+    goal_node.base_name = "Goal"
+    goal_node.name = "Goal"
+    chain_dict["Goal"] = goal_chain
+    dungeon = nx.compose(dungeon, goal_chain)
 
     return dungeon, chain_dict
 
