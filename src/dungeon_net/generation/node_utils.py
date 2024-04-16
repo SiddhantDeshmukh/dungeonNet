@@ -3,13 +3,14 @@ from dungeon_net.generation.node import Node, Corridor
 from typing import List
 
 
-def new_node_name(node: Node, previous_nodes: List[Node]) -> str:
+def new_node_name(node: Node, previous_nodes: List[Node], node_base_name=None) -> str:
     # Generate a numeric name for the node based on how many previous types
     # of the node there were (always increasing so will always be unique
     # so long as previous_nodes is correctly updated)
-    node_base_name = node.classname()
+    if not node_base_name:
+        node_base_name = node.classname()
     node_count = len([n for n in previous_nodes
-                      if n.classname() == node_base_name])
+                      if n.base_name == node_base_name])
     node_name = f"{node_base_name}_{node_count+1}"
     return node_name
 

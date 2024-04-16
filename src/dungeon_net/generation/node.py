@@ -7,6 +7,7 @@ class Node:
     def __init__(self, num_edges: int) -> None:
         self.num_edges = num_edges
         self.filled_edges = 0  # counts how many edges have been connected
+        self.base_name = self.classname()
         self.name = ""
         # maybe name edges and check if locked here
 
